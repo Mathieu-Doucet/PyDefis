@@ -1,6 +1,5 @@
 //https://pydefis.callicode.fr/defis/QSuite/txt
 
-
 #include <bits/stdc++.h>
 using namespace std;
 
