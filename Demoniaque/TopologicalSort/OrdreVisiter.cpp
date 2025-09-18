@@ -23,12 +23,54 @@ vector<string> tokenize(const string &s)
 	
 } // tokenize()
 
+map<int,int> LegendIndice;
+map<int,int> LegendAnnees;
+set<int> annees;
+
+// topological sort
+
+// DFS 
+void TopSort ( int TargetAnnees, vector<vector<int>> & adj , stack<int> & file, vector<bool> &visited){
+
+    visited[LegendAnnees[TargetAnnees]] = true;
+
+    vector<int> temp = adj[LegendAnnees[TargetAnnees]];
+
+    for( int it = 0 ; it < annees.size() ; ++it ){
+        
+
+        //Si tu trouve un nombre que tu a besoin faire avant fait le 
+        if (temp[it] == 1 && !visited[it]){
+            TopSort(LegendIndice[it], adj, file,visited);
+            
+        }
+    }
+    file.push(TargetAnnees);
+    
+}
+
+
+void TopSortGPT(int TargetAnnee, vector<vector<int>> &adj, stack<int> &file, vector<bool> &visited) {
+    int idx = LegendAnnees[TargetAnnee];
+    visited[idx] = true;
+
+    for (int i = 0; i < adj[idx].size(); ++i) {
+        if (adj[idx][i] == 1 && !visited[i]) {
+            int nextYear = LegendIndice[i];
+            TopSort(nextYear, adj, file, visited);
+        }
+    }
+
+    file.push(TargetAnnee);
+}
+
+
 
 int main(){
 
     string input = "";
 
-    set<int> annees;
+    
     vector<pair<int,int>> links;
 
 
@@ -48,29 +90,44 @@ int main(){
     // fait ta liste de adjacent pour voir les liens
 
     //besoin des convertision pour quelle indice les annees son
-    map<int,int> LegendIndice;
-    map<int,int> LegendAnnees;
 
-    int nombre = 0;
+
+    int iterator = 0;
     //initialize les maps
-    for (auto i : annees){
-        
+    for (auto year : annees){
 
         // ********initialize la mappe 
-        LegendAnnees[i] = nombre;
-        LegendIndice[nombre] = i;
-
+        LegendAnnees[year] = iterator;
+        LegendIndice[iterator] = year;
+        iterator++;
     }
 
     vector<vector<int>> adj(annees.size(),vector<int>(annees.size(),0)) ;
 
+    //debug maps
+    cout << "indices" << endl;
+    for(auto i : LegendIndice){
+        cout << i.first << "  :  " << i.second <<  endl;
+    }
+
+    cout << endl << endl;
+
+    cout << "annees" << endl;
+    for(auto i : LegendAnnees){
+        cout << i.first << "  :  " << i.second <<  endl;
+    }
+    cout << endl << endl;
+
+
     // fait le vecteur de adjacence
     for(auto lien : links ){
 
+        cout << lien.first << " : " << lien.second <<endl; 
         adj[LegendAnnees[lien.first]][LegendAnnees[lien.second]] = 1;
         
     }
 
+    // cout la matrice adj
     for (auto i : adj){
         for(auto j:i){
             cout << j << " ";
@@ -79,6 +136,25 @@ int main(){
     }
     cout << endl;
     
+    stack<int> file;
+    vector<bool> visited(annees.size(),false);
+
+    // run le topological sort
+    for (auto i : annees){
+        if (!visited[LegendAnnees[i]]){
+            TopSortGPT(i,adj,file, visited );
+        }
+        
+    }
+    
+
+    while(!file.empty()){
+        cout << file.top() << ", ";
+        file.pop();
+    }
+
+
+
     return 0;
 }
 
